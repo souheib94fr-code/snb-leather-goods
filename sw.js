@@ -3,7 +3,7 @@ const APP_SHELL = [
   './',
   './index.html',
   './manifest.webmanifest',
-  './assets/icon.svg'
+  './assets/SNB-App-Icon.png'
 ];
 
 self.addEventListener('install', event => {

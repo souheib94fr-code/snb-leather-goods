@@ -10,8 +10,8 @@
 <meta name="apple-mobile-web-app-title" content="SNB" />
 <title>SNB Leather Goods</title>
 <link rel="manifest" href="manifest.webmanifest" />
-<link rel="icon" href="assets/icon.svg" type="image/svg+xml" />
-<link rel="apple-touch-icon" href="assets/icon.svg" />
+<link rel="icon" href="assets/SNB-App-Icon.png" type="image/svg+xml" />
+<link rel="apple-touch-icon" href="assets/SNB-App-Icon.png" />
 <style>
 :root{
   --bg:#080705;--panel:#11100d;--panel2:#18140f;--gold:#d7a84e;--gold2:#f4d487;--gold3:#9f6c20;
@@ -41,13 +41,12 @@ linear-gradient(120deg,rgba(0,0,0,.94),rgba(20,13,7,.88)),radial-gradient(circle
 <body>
 <div class="app" id="customerApp">
   <header class="topbar">
-    <div class="logo"><img src="assets/icon.svg" alt="SNB"><div class="logo-text"><b>SNB</b><small>LEATHER GOODS</small></div></div>
+    <div class="logo"><img src="assets/SNB-App-Icon.png" alt="SNB"><div class="logo-text"><b>SNB</b><small>LEATHER GOODS</small></div></div>
     <div class="spacer"></div>
-    <button id="installBtn" class="btn hidden" type="button" onclick="installSNB()">⬇ <span>Install</span></button>
+    <button id="installBtn" class="btn gold hidden" type="button" onclick="installSNB()">⬇️ <span>تثبيت</span></button>
     <select id="langSelect" class="language" aria-label="Language">
       <option value="ar">العربية</option><option value="en">English</option><option value="fr">Français</option><option value="es">Español</option><option value="ru">Русский</option><option value="it">Italiano</option><option value="de">Deutsch</option>
     </select>
-    <button id="installBtn" class="btn gold hidden" onclick="installApp()">⬇️ <span>تثبيت</span></button>
     <button class="btn desktop-only" onclick="openAuth()">👤 <span data-i18n="account">الحساب</span></button>
     <button class="btn" onclick="openCart()">🛍️ <span class="desktop-only" data-i18n="cart">السلة</span> <span id="cartBadge" class="badge">0</span></button>
     <button class="btn desktop-only" onclick="openAdminLogin()">⚙️ <span>Admin</span></button>
@@ -65,7 +64,7 @@ linear-gradient(120deg,rgba(0,0,0,.94),rgba(20,13,7,.88)),radial-gradient(circle
         <button class="btn ghost" onclick="openAuth()" data-i18n="signIn">تسجيل الدخول</button>
       </div>
     </div>
-    <div class="hero-art"><div class="crest-card"><img src="assets/icon.svg" alt="SNB crest"></div></div>
+    <div class="hero-art"><div class="crest-card"><img src="assets/SNB-App-Icon.png" alt="SNB crest"></div></div>
   </section>
 
   <section class="section" id="shop">
@@ -133,7 +132,7 @@ function sendResetOtp(){const id=document.getElementById('resetId').value.trim()
 function resetPassword(){if(document.getElementById('otpInput').value!==_auth.otp)return toast('Incorrect OTP');const c=customers.find(x=>(_auth.method==='email'?x.email:x.mobile)===_auth.id);if(c)c.password=document.getElementById('newPass').value;save();closeOverlay();toast(t('save')+' ✓')}
 function openAdminLogin(){showModal(`<div class="modal-head"><h3>${t('adminLogin')}</h3><button class="iconbtn close" onclick="closeOverlay()">✕</button></div><div class="notice">Demo code: <b>SNB2026</b></div><div class="field"><label>${t('adminPass')}</label><input id="adminCode" type="password"></div><button class="btn gold" style="width:100%" onclick="adminAuth()">${t('login')}</button>`)}
 function adminAuth(){if(document.getElementById('adminCode').value!=='SNB2026')return toast('Wrong admin code');closeOverlay();renderAdmin('dashboard')}
-function renderAdmin(tab='dashboard'){document.getElementById('customerApp').classList.add('hidden');document.getElementById('bottomnav').classList.add('hidden');let revenue=orders.reduce((s,o)=>s+o.total,0);document.body.insertAdjacentHTML('beforeend',`<div id="adminApp" class="admin"><header class="topbar" style="position:sticky"><div class="logo"><img src="assets/icon.svg"><div class="logo-text"><b>SNB ADMIN</b><small>LEATHER GOODS</small></div></div><div class="spacer"></div><button class="btn" onclick="exitAdmin()">← ${t('shop')}</button></header><div class="admin-shell"><aside class="sidebar"><button class="btn ${tab==='dashboard'?'gold':''}" onclick="renderAdminReplace('dashboard')">▦ ${t('dashboard')}</button><button class="btn ${tab==='products'?'gold':''}" onclick="renderAdminReplace('products')">◇ ${t('products')}</button><button class="btn ${tab==='orders'?'gold':''}" onclick="renderAdminReplace('orders')">🧾 ${t('orders')}</button><button class="btn ${tab==='customers'?'gold':''}" onclick="renderAdminReplace('customers')">👥 ${t('customers')}</button></aside><main class="admin-main" id="adminMain"></main></div></div>`);renderAdminTab(tab,revenue)}
+function renderAdmin(tab='dashboard'){document.getElementById('customerApp').classList.add('hidden');document.getElementById('bottomnav').classList.add('hidden');let revenue=orders.reduce((s,o)=>s+o.total,0);document.body.insertAdjacentHTML('beforeend',`<div id="adminApp" class="admin"><header class="topbar" style="position:sticky"><div class="logo"><img src="assets/SNB-App-Icon.png"><div class="logo-text"><b>SNB ADMIN</b><small>LEATHER GOODS</small></div></div><div class="spacer"></div><button class="btn" onclick="exitAdmin()">← ${t('shop')}</button></header><div class="admin-shell"><aside class="sidebar"><button class="btn ${tab==='dashboard'?'gold':''}" onclick="renderAdminReplace('dashboard')">▦ ${t('dashboard')}</button><button class="btn ${tab==='products'?'gold':''}" onclick="renderAdminReplace('products')">◇ ${t('products')}</button><button class="btn ${tab==='orders'?'gold':''}" onclick="renderAdminReplace('orders')">🧾 ${t('orders')}</button><button class="btn ${tab==='customers'?'gold':''}" onclick="renderAdminReplace('customers')">👥 ${t('customers')}</button></aside><main class="admin-main" id="adminMain"></main></div></div>`);renderAdminTab(tab,revenue)}
 function renderAdminReplace(tab){document.getElementById('adminApp')?.remove();renderAdmin(tab)}
 function renderAdminTab(tab,revenue){const el=document.getElementById('adminMain');if(tab==='dashboard'){el.innerHTML=`<div class="section-head"><div><h3>${t('dashboard')}</h3><span>${t('demoHint')}</span></div></div><div class="stats"><div class="stat"><b>${products.length}</b><small>${t('products')}</small></div><div class="stat"><b>${customers.length}</b><small>${t('registered')}</small></div><div class="stat"><b>${orders.length}</b><small>${t('orders')}</small></div><div class="stat"><b>${money(revenue)}</b><small>${t('revenue')}</small></div></div><div class="notice" style="margin-top:14px">${t('demoHint')}</div>`}
 if(tab==='products'){el.innerHTML=`<div class="section-head"><div><h3>${t('products')}</h3><span>${products.length}</span></div><div class="spacer"></div><button class="btn gold" onclick="editProduct()">＋ ${t('addProduct')}</button></div><div class="tablewrap"><table class="table"><thead><tr><th>${t('productName')}</th><th>${t('category')}</th><th>${t('price')}</th><th>${t('discount')}</th><th>${t('stock')}</th><th>${t('status')}</th><th></th></tr></thead><tbody>${products.map(p=>`<tr><td><b>${p.name}</b></td><td>${t(p.category)}</td><td>${money(p.price)}</td><td>${p.discount||0}%</td><td>${p.stock}</td><td><span class="status ${p.active?'ok':'warn'}">${p.active?t('active'):t('inactive')}</span></td><td><button class="btn small" onclick="editProduct('${p.id}')">${t('edit')}</button> <button class="btn small danger" onclick="deleteProduct('${p.id}')">${t('delete')}</button></td></tr>`).join('')}</tbody></table></div>`}
@@ -145,50 +144,55 @@ function deleteProduct(id){if(!confirm('Delete product?'))return;products=produc
 function exitAdmin(){document.getElementById('adminApp')?.remove();document.getElementById('customerApp').classList.remove('hidden');document.getElementById('bottomnav').classList.remove('hidden');renderProducts()}
 function showDrawer(html){document.getElementById('overlay').innerHTML=`<div class="drawer" onclick="if(event.target===this)closeOverlay()"><div class="drawer-panel">${html}</div></div>`}function showModal(html){document.getElementById('overlay').innerHTML=`<div class="modal-wrap" onclick="if(event.target===this)closeOverlay()"><div class="modal">${html}</div></div>`}function closeOverlay(){document.getElementById('overlay').innerHTML=''}function toast(msg){const e=document.getElementById('toast');e.textContent=msg;e.classList.remove('hidden');clearTimeout(window._tt);window._tt=setTimeout(()=>e.classList.add('hidden'),2400)}function escapeHtml(s=''){return String(s).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#039;','"':'&quot;'}[c]))}
 let deferredInstallPrompt=null;
+let installWelcomeShown=false;
+
+function showInstallWelcome(){
+  if(window.matchMedia('(display-mode: standalone)').matches) return;
+  if(installWelcomeShown) return;
+  installWelcomeShown=true;
+  showModal(`<div class="success" style="padding:18px 8px 8px">
+    <img src="assets/SNB-App-Icon.png" alt="SNB" style="width:92px;height:92px;border-radius:24px;margin-bottom:14px;box-shadow:0 10px 35px rgba(215,168,78,.25)">
+    <h3 style="margin:0 0 8px;font-family:Georgia,serif;color:#f3d58c">SNB Leather Goods</h3>
+    <p class="muted" style="margin:0 0 18px">ثبّت التطبيق على موبايلك ليظهر كتطبيق مستقل.</p>
+    <button class="btn gold" style="width:100%;margin-bottom:8px" onclick="installSNB()">⬇️ تثبيت التطبيق</button>
+    <button class="btn ghost" style="width:100%" onclick="closeOverlay()">المتابعة في المتصفح</button>
+  </div>`);
+}
+
 window.addEventListener('beforeinstallprompt',e=>{
   e.preventDefault();
   deferredInstallPrompt=e;
   document.getElementById('installBtn')?.classList.remove('hidden');
+  if(!installWelcomeShown) setTimeout(showInstallWelcome,250);
 });
+
 window.addEventListener('appinstalled',()=>{
   deferredInstallPrompt=null;
   document.getElementById('installBtn')?.classList.add('hidden');
-  toast('SNB installed ✓');
+  closeOverlay();
+  toast('تم تثبيت SNB ✓');
 });
+
 async function installSNB(){
-  if(!deferredInstallPrompt){
-    toast('Open the browser menu and choose Install app / Add to Home screen');
+  if(deferredInstallPrompt){
+    deferredInstallPrompt.prompt();
+    const choice=await deferredInstallPrompt.userChoice;
+    if(choice.outcome==='accepted'){
+      closeOverlay();
+      toast('تم تثبيت SNB ✓');
+    }
+    deferredInstallPrompt=null;
+    document.getElementById('installBtn')?.classList.add('hidden');
     return;
   }
-  deferredInstallPrompt.prompt();
-  await deferredInstallPrompt.userChoice;
-  deferredInstallPrompt=null;
-  document.getElementById('installBtn')?.classList.add('hidden');
+  toast('إذا لم تظهر نافذة التثبيت، افتح الرابط في Chrome ثم اختر Install app / Add to Home screen');
 }
+
 if(window.matchMedia('(display-mode: standalone)').matches){
   document.getElementById('installBtn')?.classList.add('hidden');
+}else{
+  setTimeout(showInstallWelcome,700);
 }
-let deferredInstallPrompt=null;
-window.addEventListener('beforeinstallprompt',e=>{
-  e.preventDefault();
-  deferredInstallPrompt=e;
-  document.getElementById('installBtn')?.classList.remove('hidden');
-});
-async function installApp(){
-  if(!deferredInstallPrompt){
-    toast('إذا لم يظهر زر التثبيت: افتح قائمة Chrome واختر تثبيت التطبيق');
-    return;
-  }
-  deferredInstallPrompt.prompt();
-  const choice=await deferredInstallPrompt.userChoice;
-  if(choice.outcome==='accepted') toast('SNB تم تثبيته كتطبيق ✓');
-  deferredInstallPrompt=null;
-  document.getElementById('installBtn')?.classList.add('hidden');
-}
-window.addEventListener('appinstalled',()=>{
-  deferredInstallPrompt=null;
-  document.getElementById('installBtn')?.classList.add('hidden');
-});
 if('serviceWorker' in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js').catch(()=>{});applyLang();updateCartBadge();
 </script>
 </body>

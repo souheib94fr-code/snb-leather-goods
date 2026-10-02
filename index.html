@@ -47,6 +47,7 @@ linear-gradient(120deg,rgba(0,0,0,.94),rgba(20,13,7,.88)),radial-gradient(circle
     <select id="langSelect" class="language" aria-label="Language">
       <option value="ar">العربية</option><option value="en">English</option><option value="fr">Français</option><option value="es">Español</option><option value="ru">Русский</option><option value="it">Italiano</option><option value="de">Deutsch</option>
     </select>
+    <button id="installBtn" class="btn gold hidden" onclick="installApp()">⬇️ <span>تثبيت</span></button>
     <button class="btn desktop-only" onclick="openAuth()">👤 <span data-i18n="account">الحساب</span></button>
     <button class="btn" onclick="openCart()">🛍️ <span class="desktop-only" data-i18n="cart">السلة</span> <span id="cartBadge" class="badge">0</span></button>
     <button class="btn desktop-only" onclick="openAdminLogin()">⚙️ <span>Admin</span></button>
@@ -167,6 +168,27 @@ async function installSNB(){
 if(window.matchMedia('(display-mode: standalone)').matches){
   document.getElementById('installBtn')?.classList.add('hidden');
 }
+let deferredInstallPrompt=null;
+window.addEventListener('beforeinstallprompt',e=>{
+  e.preventDefault();
+  deferredInstallPrompt=e;
+  document.getElementById('installBtn')?.classList.remove('hidden');
+});
+async function installApp(){
+  if(!deferredInstallPrompt){
+    toast('إذا لم يظهر زر التثبيت: افتح قائمة Chrome واختر تثبيت التطبيق');
+    return;
+  }
+  deferredInstallPrompt.prompt();
+  const choice=await deferredInstallPrompt.userChoice;
+  if(choice.outcome==='accepted') toast('SNB تم تثبيته كتطبيق ✓');
+  deferredInstallPrompt=null;
+  document.getElementById('installBtn')?.classList.add('hidden');
+}
+window.addEventListener('appinstalled',()=>{
+  deferredInstallPrompt=null;
+  document.getElementById('installBtn')?.classList.add('hidden');
+});
 if('serviceWorker' in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js').catch(()=>{});applyLang();updateCartBadge();
 </script>
 </body>

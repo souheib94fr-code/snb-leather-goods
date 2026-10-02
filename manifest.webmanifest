@@ -14,9 +14,9 @@
   "categories": ["shopping", "lifestyle"],
   "icons": [
     {
-      "src": "assets/icon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
+      "src": "assets/SNB-App-Icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
       "purpose": "any maskable"
     }
   ]

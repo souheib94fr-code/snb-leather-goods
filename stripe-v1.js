@@ -185,8 +185,8 @@
         '<div style="text-align:center"><div class="check" style="margin:auto">✓</div><h3>'+txt('تمت المحاكاة بنجاح','Simulation successful')+'</h3></div>'+
         receiptHtml(o)+
         '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px">'+
-        '<button class="btn gold" onclick="snbDownloadDemoReceipt(\''+esc(o.order_no)+'\')">⬇ PDF</button>'+
-        '<button class="btn" onclick="snbEmailDemoReceipt(\''+esc(o.order_no)+'\')">✉ Email</button>'+
+        '<button class="btn gold" onclick="snbDownloadDemoReceipt(\''+esc(o.order_no)+'\')" style="line-height:1.35"><span style="display:block;font-weight:800">Download Receipt PDF</span><span dir="rtl" style="display:block;font-size:12px;margin-top:2px">تحميل الإيصال PDF</span></button>'+
+        '<button class="btn" onclick="snbEmailDemoReceipt(\''+esc(o.order_no)+'\')" style="line-height:1.35"><span style="display:block;font-weight:800">Send Receipt by Email</span><span dir="rtl" style="display:block;font-size:12px;margin-top:2px">إرسال الإيصال عبر البريد الإلكتروني</span></button>'+
         '</div>'+
         '<div class="notice" style="margin-top:10px">'+txt('هذه عملية تجريبية فقط والطلب يبقى غير مدفوع فعلياً.','This is a demo only; the order remains unpaid in the real payment system.')+'</div>'
       );

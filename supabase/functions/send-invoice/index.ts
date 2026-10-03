@@ -124,7 +124,7 @@ Deno.serve(async (req) => {
     });
   }
 
-  const from = Deno.env.get("RESEND_FROM") || "SNB Leather Goods <onboarding@resend.dev>";
+  const from = Deno.env.get("RESEND_FROM") || "SNB Leather Goods <invoices@snbleathergoods.shop>";
   const attachments: any[] = [];
   const pdfBase64 = typeof body?.pdf_base64 === "string" ? body.pdf_base64.replace(/^data:application\/pdf;base64,/, "") : "";
   if (pdfBase64 && pdfBase64.length <= 12_000_000 && /^[A-Za-z0-9+/=\r\n]+$/.test(pdfBase64)) {

@@ -75,25 +75,43 @@
 
   function receiptHtml(o){
     var r=receiptNo(o);
-    return '<div id="snbDemoReceipt" style="width:min(390px,92vw);margin:auto;background:#fff;color:#111;border:2px solid #b88a22;border-radius:20px;padding:22px;font-family:Arial,Tahoma,sans-serif;box-sizing:border-box">'+
-      '<div style="text-align:center"><div style="font-family:Georgia,serif;font-size:60px;line-height:.9;font-weight:800;color:#111">SNB</div><div style="letter-spacing:.24em;font-size:13px;margin-top:8px">LEATHER GOODS</div><div style="height:1px;background:#c79a37;margin:16px 0"></div>'+
-      '<h2 style="margin:0;font-family:Georgia,serif">PAYMENT RECEIPT | إيصال استلام دفعة</h2>'+
-      '<p style="margin:8px 0 18px;color:#6e6252">'+txt('نموذج تجريبي — لم يتم خصم أي مبلغ حقيقي.','Demo receipt — no real funds were charged.')+'</p></div>'+
-      '<div style="display:grid;gap:12px;font-size:14px">'+
-      row('Receipt No. | رقم الإيصال',r)+
-      row('Order No. | رقم الطلب',o.order_no)+
-      row('Date & Time | التاريخ والوقت',new Date(o.created_at||Date.now()).toLocaleString())+
-      row('Customer | العميل',o.customer_name||currentUser?.name||'SNB Customer')+
-      row('Payment Method | طريقة الدفع','Card | بطاقة بنكية')+
+    return '<div id="snbDemoReceipt" style="width:100%;max-width:360px;margin:0 auto;background:#fff;color:#111;border:2px solid #b88a22;border-radius:18px;padding:14px 12px;font-family:Arial,Tahoma,sans-serif;box-sizing:border-box;overflow:hidden;direction:ltr">'+
+      '<div style="text-align:center">'+
+        '<div style="font-family:Georgia,serif;font-size:46px;line-height:.95;font-weight:800;color:#111;letter-spacing:.04em">SNB</div>'+
+        '<div style="letter-spacing:.22em;font-size:11px;margin-top:6px">LEATHER GOODS</div>'+
+        '<div style="height:1px;background:#c79a37;margin:12px 0 14px"></div>'+
+        '<div style="font-family:Georgia,serif;font-size:21px;font-weight:800;line-height:1.15">PAYMENT RECEIPT</div>'+
+        '<div dir="rtl" style="font-family:Tahoma,Arial,sans-serif;font-size:20px;font-weight:800;line-height:1.35;margin-top:5px">إيصال استلام دفعة</div>'+
+        '<p dir="rtl" style="margin:10px 0 14px;color:#6e6252;font-size:12px;line-height:1.55">'+txt('نموذج تجريبي — لم يتم خصم أي مبلغ حقيقي.','Demo receipt — no real funds were charged.')+'</p>'+
       '</div>'+
-      '<div style="margin-top:18px;border:1px solid #c89a34;border-radius:14px;padding:16px;display:flex;justify-content:space-between;align-items:center;background:#fffaf0"><b>Amount | المبلغ</b><strong style="font-size:26px">AED '+Number(o.total||0).toFixed(2)+'</strong></div>'+
-      '<div style="margin-top:14px;border-radius:14px;padding:14px;text-align:center;background:#eef7ea;border:1px solid #bad6b2"><b style="font-size:22px">DEMO ✓</b><br><span>'+txt('تمت محاكاة العملية بنجاح','Payment simulation completed successfully')+'</span></div>'+
-      '<div style="text-align:center;margin-top:22px;padding-top:16px;border-top:1px solid #d6b667"><b>Thank you for choosing SNB</b><br><span>شكراً لاختياركم SNB</span><br><small style="color:#7b6b57">snbleathergoods.shop</small></div>'+
-      '</div>';
+      '<div style="display:grid;gap:0;font-size:12.5px">'+
+        row('Receipt No.','رقم الإيصال',r)+
+        row('Order No.','رقم الطلب',o.order_no)+
+        row('Date & Time','التاريخ والوقت',new Date(o.created_at||Date.now()).toLocaleString())+
+        row('Customer','العميل',o.customer_name||currentUser?.name||'SNB Customer')+
+        row('Payment Method','طريقة الدفع','Card | بطاقة بنكية')+
+      '</div>'+
+      '<div style="margin-top:14px;border:1px solid #c89a34;border-radius:13px;padding:13px 12px;display:flex;gap:10px;justify-content:space-between;align-items:center;background:#fffaf0">'+
+        '<div><b style="font-size:13px">Amount</b><div dir="rtl" style="font-weight:700;font-size:12px;margin-top:2px">المبلغ</div></div>'+
+        '<strong style="font-size:23px;white-space:nowrap">AED '+Number(o.total||0).toFixed(2)+'</strong>'+
+      '</div>'+
+      '<div style="margin-top:11px;border-radius:13px;padding:12px;text-align:center;background:#eef7ea;border:1px solid #bad6b2">'+
+        '<b style="font-size:20px">✓ DEMO</b>'+
+        '<div dir="rtl" style="font-size:13px;margin-top:4px">'+txt('تمت محاكاة العملية بنجاح','Payment simulation completed successfully')+'</div>'+
+      '</div>'+
+      '<div style="text-align:center;margin-top:16px;padding-top:12px;border-top:1px solid #d6b667">'+
+        '<b style="font-size:14px">Thank you for choosing SNB</b>'+
+        '<div dir="rtl" style="font-size:13px;margin-top:3px">شكراً لاختياركم SNB</div>'+
+        '<small style="display:block;color:#7b6b57;margin-top:5px">snbleathergoods.shop</small>'+
+      '</div>'+
+    '</div>';
   }
 
-  function row(k,v){
-    return '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;padding-bottom:10px;border-bottom:1px solid #eee1c5"><b>'+esc(k)+'</b><span style="text-align:right;word-break:break-word">'+esc(v)+'</span></div>';
+  function row(en,arLabel,v){
+    return '<div style="display:grid;grid-template-columns:46% 54%;gap:8px;align-items:center;padding:9px 2px;border-bottom:1px solid #eee1c5;min-width:0">'+
+      '<div style="min-width:0"><b style="display:block;font-size:12px;line-height:1.2">'+esc(en)+'</b><span dir="rtl" style="display:block;font-size:11.5px;font-weight:700;line-height:1.35;margin-top:2px">'+esc(arLabel)+'</span></div>'+
+      '<span style="text-align:right;word-break:break-word;overflow-wrap:anywhere;font-size:12.5px;line-height:1.35">'+esc(v)+'</span>'+
+    '</div>';
   }
 
   async function pdfFromOrder(o){

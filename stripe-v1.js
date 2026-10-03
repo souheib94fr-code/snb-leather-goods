@@ -31,10 +31,10 @@
       '<b>💳 '+txt('الدفع بالبطاقة','Card payment')+'</b>'+
       '<p class="muted" style="margin:8px 0 0">'+txt('تجربة فقط — لا تدخل بيانات بطاقة حقيقية. هذه الحقول لا تُحفظ ولا تُرسل إلى السيرفر.','Demo only — do not enter real card details. These fields are not stored or sent to the server.')+'</p>'+
       '</div>'+
-      '<div class="field"><label>'+txt('رقم البطاقة','Card number')+'</label><input id="snbDemoCardNo" inputmode="numeric" autocomplete="off" maxlength="19" value="4242 4242 4242 4242"></div>'+
+      '<div class="field"><label>'+txt('رقم البطاقة','Card number')+'</label><input id="snbDemoCardNo" inputmode="numeric" autocomplete="off" maxlength="19" placeholder="1234 5678 9012 3456"></div>'+
       '<div class="formgrid">'+
-      '<div class="field"><label>'+txt('تاريخ الانتهاء','Expiry')+'</label><input id="snbDemoExpiry" inputmode="numeric" autocomplete="off" maxlength="5" value="12/34"></div>'+
-      '<div class="field"><label>CVV</label><input id="snbDemoCvv" inputmode="numeric" autocomplete="off" maxlength="3" value="123"></div>'+
+      '<div class="field"><label>'+txt('تاريخ الانتهاء','Expiry')+'</label><input id="snbDemoExpiry" inputmode="numeric" autocomplete="off" maxlength="5" placeholder="MM/YY"></div>'+
+      '<div class="field"><label>CVV</label><input id="snbDemoCvv" inputmode="numeric" autocomplete="off" maxlength="3" placeholder="123"></div>'+
       '</div>';
   }
 
@@ -129,8 +129,16 @@
     var no=(document.getElementById('snbDemoCardNo')?.value||'').replace(/\D/g,'');
     var ex=document.getElementById('snbDemoExpiry')?.value||'';
     var cv=document.getElementById('snbDemoCvv')?.value||'';
-    if(no!=='4242424242424242'||ex!=='12/34'||cv!=='123'){
-      toast(txt('استخدم البيانات الوهمية الظاهرة في الخانات.','Use the dummy values shown in the fields.'));
+    if(!/^\d{16}$/.test(no)){
+      toast(txt('أدخل 16 رقم للبطاقة الوهمية.','Enter 16 digits for the dummy card.'));
+      return false;
+    }
+    if(!/^\d{2}\/\d{2}$/.test(ex)){
+      toast(txt('أدخل تاريخ انتهاء بصيغة MM/YY.','Enter expiry as MM/YY.'));
+      return false;
+    }
+    if(!/^\d{3}$/.test(cv)){
+      toast(txt('أدخل CVV وهمي من 3 أرقام.','Enter a 3-digit dummy CVV.'));
       return false;
     }
     return true;

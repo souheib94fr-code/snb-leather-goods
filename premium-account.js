@@ -127,7 +127,7 @@ async function placeOrder(){
 }
 async function loadMyOrders(){
   if(!currentUser){myOrders=[];return}
-  const {data,error}=await sb.from('orders').select('id,order_no,total,subtotal,discount_amount,shipping_fee,coupon_code,coupon_discount,status,payment_method,address,emirate,city,notes,tracking_number,tracking_carrier,tracking_url,created_at,updated_at,order_items(product_id,product_name,size,color,color_name,qty,unit_price,image_url,variant_id),order_status_history(status,created_at)').eq('user_id',currentUser.id).order('created_at',{ascending:false});
+  const {data,error}=await sb.from('orders').select('id,order_no,total,subtotal,discount_amount,shipping_fee,coupon_code,coupon_discount,status,payment_method,address,emirate,city,notes,tracking_number,tracking_carrier,tracking_url,invoice_no,invoice_issued_at,invoice_sent_at,created_at,updated_at,order_items(product_id,product_name,size,color,color_name,qty,unit_price,image_url,variant_id),order_status_history(status,created_at)').eq('user_id',currentUser.id).order('created_at',{ascending:false});
   if(!error)myOrders=data||[];
 }
 function paTimeline(o){
@@ -165,6 +165,7 @@ function paOrderDetails(index){
     <div class="notice" style="margin-top:14px">${escapeHtml([o.emirate,o.city,o.address].filter(Boolean).join(' · '))}${o.notes?`<br><small>${escapeHtml(o.notes)}</small>`:''}</div>
     ${o.tracking_number?`<div class="notice">🚚 <b>${lang==='ar'?'رقم التتبع':'Tracking'}:</b> ${escapeHtml(o.tracking_number)}${o.tracking_carrier?` · ${escapeHtml(o.tracking_carrier)}`:''}${track?`<br><a class="btn small" style="display:inline-block;margin-top:8px;text-decoration:none" href="${escapeHtml(track)}" target="_blank" rel="noopener">${lang==='ar'?'تتبّع الشحنة':'Track shipment'}</a>`:''}</div>`:''}
     <div class="totals"><div class="totalrow"><span>${lang==='ar'?'الشحن':'Shipping'}</span><span>${money(o.shipping_fee||0)}</span></div>${Number(o.coupon_discount||0)>0?`<div class="totalrow"><span>${lang==='ar'?'خصم الكوبون':'Coupon'}</span><span>− ${money(o.coupon_discount)}</span></div>`:''}<div class="totalrow big"><span>${t('total')}</span><span>${money(o.total)}</span></div></div>
+    ${o.invoice_no&&o.status!=='cancelled'?`<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"><button class="btn gold" style="flex:1" onclick="snbOpenInvoiceAccount(${index})">🧾 ${lang==='ar'?'الفاتورة':'Invoice'}</button><button class="btn" onclick="snbDownloadInvoiceAccount(${index})">⬇ PDF</button></div>`:''}
     <button class="btn gold" style="width:100%;margin-top:8px" onclick="paReorder(${index})">↻ ${lang==='ar'?'إعادة الطلب':'Reorder'}</button>`);
 }
 async function paProfileEditor(){

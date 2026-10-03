@@ -4,6 +4,7 @@
   var v13SortMode='newest';
   var v13FilterSize='';
   var v13FilterColor='';
+  var v13MinPrice=0;
   var v13MaxPrice=0;
   var v13Addresses=[];
   var v13ShippingRules=[];
@@ -69,7 +70,7 @@
     var wrap=document.createElement('div');
     wrap.id='v13StoreTools';
     wrap.className='store-tools';
-    wrap.innerHTML='<input class="searchwide" id="v13Search" type="search" placeholder="ابحث / Search" oninput="setSearch(this.value)"><select id="v13Sort" onchange="v13SetSort(this.value)"><option value="newest">الأحدث / Newest</option><option value="price_low">السعر: الأقل / Price low</option><option value="price_high">السعر: الأعلى / Price high</option><option value="bestseller">الأكثر مبيعاً / Best seller</option></select><select id="v13Size" onchange="v13SetSize(this.value)"><option value="">كل المقاسات / All sizes</option></select><select id="v13Color" onchange="v13SetColor(this.value)"><option value="">كل الألوان / All colors</option></select><input id="v13MaxPrice" type="number" min="0" placeholder="Max AED" oninput="v13SetMaxPrice(this.value)">';
+    wrap.innerHTML='<input class="searchwide" id="v13Search" type="search" placeholder="ابحث / Search" oninput="setSearch(this.value)"><select id="v13Sort" onchange="v13SetSort(this.value)"><option value="newest">الأحدث / Newest</option><option value="price_low">السعر: الأقل / Price low</option><option value="price_high">السعر: الأعلى / Price high</option><option value="bestseller">الأكثر مبيعاً / Best seller</option></select><select id="v13Size" onchange="v13SetSize(this.value)"><option value="">كل المقاسات / All sizes</option></select><select id="v13Color" onchange="v13SetColor(this.value)"><option value="">كل الألوان / All colors</option></select><div style="display:flex;gap:6px"><input id="v13MinPrice" type="number" min="0" placeholder="Min AED" oninput="v13SetMinPrice(this.value)"><input id="v13MaxPrice" type="number" min="0" placeholder="Max AED" oninput="v13SetMaxPrice(this.value)"></div>';
     filters.parentNode.insertBefore(wrap,filters);
     v13RefreshFilterOptions();
   }
@@ -95,6 +96,7 @@
   window.v13SetSort=function(v){v13SortMode=v;renderProducts()};
   window.v13SetSize=function(v){v13FilterSize=v;renderProducts()};
   window.v13SetColor=function(v){v13FilterColor=v;renderProducts()};
+  window.v13SetMinPrice=function(v){v13MinPrice=Math.max(0,Number(v||0));renderProducts()};
   window.v13SetMaxPrice=function(v){v13MaxPrice=Math.max(0,Number(v||0));renderProducts()};
 
   window.renderProducts=function(){
@@ -105,6 +107,7 @@
       if(v13Search&&!String(p.name||'').toLowerCase().includes(v13Search)&&!String(p.category||'').toLowerCase().includes(v13Search))return false;
       if(v13FilterSize&&!(p.variants||[]).some(function(v){return v.size===v13FilterSize&&v.stock>0}))return false;
       if(v13FilterColor&&!(p.variants||[]).some(function(v){return v.color===v13FilterColor&&v.stock>0}))return false;
+      if(v13MinPrice>0&&finalPrice(p)<v13MinPrice)return false;
       if(v13MaxPrice>0&&finalPrice(p)>v13MaxPrice)return false;
       return true;
     });
@@ -367,7 +370,8 @@
       sb.from('customers').select('*').order('created_at',{ascending:false}),
       sb.from('coupons').select('*').order('created_at',{ascending:false}),
       sb.from('shipping_rules').select('*').order('emirate'),
-      sb.from('inventory_movements').select('*,products(name),product_variants(size,color,color_name)').order('created_at',{ascending:false}).limit(250)
+      sb.from('inventory_movements').select('*,products(name),product_variants(size,color,color_name)').order('created_at',{ascending:false}).limit(250),
+      sb.from('notification_outbox').select('*').order('created_at',{ascending:false}).limit(250)
     ]);
     if(arr[0].error)throw arr[0].error;if(arr[1].error)throw arr[1].error;if(arr[2].error)throw arr[2].error;
     products=(arr[0].data||[]).map(normalizeProduct);
@@ -376,6 +380,7 @@
     window.v13AdminCoupons=arr[3].error?[]:(arr[3].data||[]);
     window.v13AdminShipping=arr[4].error?[]:(arr[4].data||[]);
     window.v13AdminInventory=arr[5].error?[]:(arr[5].data||[]);
+    window.v13AdminNotifications=arr[6].error?[]:(arr[6].data||[]);
   };
 
   function v13SubscribeAdminOrders(){
@@ -397,7 +402,7 @@
     tab=tab||'dashboard';
     document.getElementById('customerApp').classList.add('hidden');document.getElementById('bottomnav').classList.add('hidden');document.getElementById('adminApp')?.remove();
     var received=orders.filter(function(o){return o.status==='received'}).length;
-    document.body.insertAdjacentHTML('beforeend','<div id="adminApp" class="admin"><header class="topbar" style="position:sticky"><div class="logo"><img src="assets/SNB-App-Icon.png"><div class="logo-text"><b>SNB ADMIN</b><small>LEATHER GOODS</small></div></div><div class="spacer"></div>'+(received?'<span class="admin-alert">'+received+'</span>':'')+'<button class="btn" onclick="exitAdmin()">← '+t('shop')+'</button></header><div class="admin-shell"><aside class="sidebar"><button class="btn '+(tab==='dashboard'?'gold':'')+'" onclick="renderAdminReplace(\'dashboard\')">▦ '+t('dashboard')+'</button><button class="btn '+(tab==='products'?'gold':'')+'" onclick="renderAdminReplace(\'products\')">◇ '+t('products')+'</button><button class="btn '+(tab==='orders'?'gold':'')+'" onclick="renderAdminReplace(\'orders\')">🧾 '+t('orders')+(received?' <span class="admin-alert">'+received+'</span>':'')+'</button><button class="btn '+(tab==='customers'?'gold':'')+'" onclick="renderAdminReplace(\'customers\')">👥 '+t('customers')+'</button><button class="btn '+(tab==='coupons'?'gold':'')+'" onclick="renderAdminReplace(\'coupons\')">％ Coupons</button><button class="btn '+(tab==='shipping'?'gold':'')+'" onclick="renderAdminReplace(\'shipping\')">🚚 Shipping</button><button class="btn '+(tab==='inventory'?'gold':'')+'" onclick="renderAdminReplace(\'inventory\')">▤ Inventory</button></aside><main class="admin-main" id="adminMain"></main></div></div>');
+    document.body.insertAdjacentHTML('beforeend','<div id="adminApp" class="admin"><header class="topbar" style="position:sticky"><div class="logo"><img src="assets/SNB-App-Icon.png"><div class="logo-text"><b>SNB ADMIN</b><small>LEATHER GOODS</small></div></div><div class="spacer"></div>'+(received?'<span class="admin-alert">'+received+'</span>':'')+'<button class="btn" onclick="exitAdmin()">← '+t('shop')+'</button></header><div class="admin-shell"><aside class="sidebar"><button class="btn '+(tab==='dashboard'?'gold':'')+'" onclick="renderAdminReplace(\'dashboard\')">▦ '+t('dashboard')+'</button><button class="btn '+(tab==='products'?'gold':'')+'" onclick="renderAdminReplace(\'products\')">◇ '+t('products')+'</button><button class="btn '+(tab==='orders'?'gold':'')+'" onclick="renderAdminReplace(\'orders\')">🧾 '+t('orders')+(received?' <span class="admin-alert">'+received+'</span>':'')+'</button><button class="btn '+(tab==='customers'?'gold':'')+'" onclick="renderAdminReplace(\'customers\')">👥 '+t('customers')+'</button><button class="btn '+(tab==='coupons'?'gold':'')+'" onclick="renderAdminReplace(\'coupons\')">％ Coupons</button><button class="btn '+(tab==='shipping'?'gold':'')+'" onclick="renderAdminReplace(\'shipping\')">🚚 Shipping</button><button class="btn '+(tab==='inventory'?'gold':'')+'" onclick="renderAdminReplace(\'inventory\')">▤ Inventory</button><button class="btn '+(tab==='notifications'?'gold':'')+'" onclick="renderAdminReplace(\'notifications\')">✉ Email Queue</button></aside><main class="admin-main" id="adminMain"></main></div></div>');
     renderAdminTab(tab,orders.filter(function(o){return o.status!=='cancelled'}).reduce(function(s,o){return s+Number(o.total||0)},0));
     v13SubscribeAdminOrders();
   };
@@ -433,17 +438,22 @@
     }
     if(tab==='shipping'){
       var rs=window.v13AdminShipping||[];
-      el.innerHTML='<div class="section-head"><div><h3>Shipping</h3><span>UAE</span></div></div><div class="notice">'+(lang==='ar'?'حالياً كل الإمارات مجانية. غيّر الرسوم وحد الإعفاء متى شئت. إذا Free over = 0 يبقى الشحن مجانياً دائماً.':'All Emirates are currently free. Set a fee and free-shipping threshold whenever needed. Free over = 0 means always free.')+'</div><div class="tablewrap"><table class="table"><thead><tr><th>Emirate</th><th>Fee AED</th><th>Free over AED</th><th>Active</th><th></th></tr></thead><tbody>'+rs.map(function(r){return '<tr><td><b>'+escapeHtml(r.emirate)+'</b></td><td><input id="shipfee-'+escapeHtml(r.emirate)+'" type="number" min="0" value="'+Number(r.fee||0)+'" style="width:100px"></td><td><input id="shipfree-'+escapeHtml(r.emirate)+'" type="number" min="0" value="'+Number(r.free_over||0)+'" style="width:120px"></td><td><input id="shipactive-'+escapeHtml(r.emirate)+'" type="checkbox" '+(r.active?'checked':'')+'></td><td><button class="btn small" onclick="v13SaveShipping(\''+escapeHtml(r.emirate)+'\')">'+t('save')+'</button></td></tr>'}).join('')+'</tbody></table></div>';
+      el.innerHTML='<div class="section-head"><div><h3>Shipping</h3><span>UAE</span></div></div><div class="notice">'+(lang==='ar'?'حالياً كل الإمارات مجانية. غيّر الرسوم وحد الإعفاء متى شئت. إذا Free over = 0 يبقى الشحن مجانياً دائماً.':'All Emirates are currently free. Set a fee and free-shipping threshold whenever needed. Free over = 0 means always free.')+'</div><div class="tablewrap"><table class="table"><thead><tr><th>Emirate</th><th>Fee AED</th><th>Free over AED</th><th>Active</th><th></th></tr></thead><tbody>'+rs.map(function(r){var k=encodeURIComponent(r.emirate);return '<tr><td><b>'+escapeHtml(r.emirate)+'</b></td><td><input id="shipfee-'+k+'" type="number" min="0" value="'+Number(r.fee||0)+'" style="width:100px"></td><td><input id="shipfree-'+k+'" type="number" min="0" value="'+Number(r.free_over||0)+'" style="width:120px"></td><td><input id="shipactive-'+k+'" type="checkbox" '+(r.active?'checked':'')+'></td><td><button class="btn small" onclick="v13SaveShipping(\''+escapeHtml(r.emirate)+'\')">'+t('save')+'</button></td></tr>'}).join('')+'</tbody></table></div>';
       return;
     }
     if(tab==='inventory'){
       var ms=window.v13AdminInventory||[];
       el.innerHTML='<div class="section-head"><div><h3>Inventory Log</h3><span>'+ms.length+'</span></div></div><div class="tablewrap"><table class="table"><thead><tr><th>Date</th><th>Product</th><th>Option</th><th>Change</th><th>Reason</th><th>Note</th></tr></thead><tbody>'+(ms.length?ms.map(function(m){var v=m.product_variants||{};return '<tr><td>'+new Date(m.created_at).toLocaleString()+'</td><td>'+escapeHtml(m.products?.name||m.product_id)+'</td><td>'+escapeHtml([v.size,v.color_name||v.color].filter(Boolean).join(' · '))+'</td><td style="color:'+(m.qty_change<0?'#ffadad':'#83e3a4')+'"><b>'+(m.qty_change>0?'+':'')+m.qty_change+'</b></td><td>'+escapeHtml(m.reason)+'</td><td>'+escapeHtml(m.note||'')+'</td></tr>'}).join(''):'<tr><td colspan="6" class="empty">—</td></tr>')+'</tbody></table></div>';
+      return;
+    }
+    if(tab==='notifications'){
+      var ns=window.v13AdminNotifications||[];
+      el.innerHTML='<div class="section-head"><div><h3>Email Queue</h3><span>'+ns.length+'</span></div></div><div class="notice">'+(lang==='ar'?'يتم تجهيز إشعارات الطلبات تلقائياً. الإرسال الخارجي للعملاء يتفعّل فور ربط دومين إرسال موثّق في Resend.':'Order emails are queued automatically. External customer delivery activates once a verified sending domain is connected in Resend.')+'</div><div class="tablewrap"><table class="table"><thead><tr><th>Date</th><th>Recipient</th><th>Type</th><th>Order</th><th>Status</th><th>Error</th></tr></thead><tbody>'+(ns.length?ns.map(function(n){return '<tr><td>'+new Date(n.created_at).toLocaleString()+'</td><td>'+escapeHtml(n.recipient_email||'')+'</td><td>'+escapeHtml(n.notification_type||'')+'</td><td>'+escapeHtml(n.order_id||'')+'</td><td>'+(n.sent_at?'Sent':'Queued')+'</td><td>'+escapeHtml(n.last_error||'')+'</td></tr>'}).join(''):'<tr><td colspan="6" class="empty">—</td></tr>')+'</tbody></table></div>';
     }
   };
 
   window.v13SaveShipping=async function(em){
-    var fee=Number(document.getElementById('shipfee-'+em)?.value||0),free=Number(document.getElementById('shipfree-'+em)?.value||0),active=!!document.getElementById('shipactive-'+em)?.checked;
+    var k=encodeURIComponent(em);var fee=Number(document.getElementById('shipfee-'+k)?.value||0),free=Number(document.getElementById('shipfree-'+k)?.value||0),active=!!document.getElementById('shipactive-'+k)?.checked;
     var r=await sb.from('shipping_rules').update({fee:Math.max(0,fee),free_over:Math.max(0,free),active:active,updated_at:new Date().toISOString()}).eq('emirate',em);
     if(r.error)return toast(r.error.message);await loadAdminData();toast(lang==='ar'?'تم حفظ الشحن ✓':'Shipping saved ✓');
   };

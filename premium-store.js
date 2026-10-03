@@ -114,6 +114,22 @@ function psGalleryShow(url){
   const img=document.getElementById('psGalleryMain');if(img)img.src=url;
   document.querySelectorAll('.ps-thumb').forEach(x=>x.style.borderColor=x.dataset.url===url?'#f2cf7b':'var(--line)');
 }
+function psProductShareUrl(p){
+  const u=new URL(APP_URL);
+  u.searchParams.set('product',p.id);
+  return u.toString();
+}
+async function psShareProduct(id){
+  const p=products.find(x=>x.id===id);if(!p)return;
+  const url=psProductShareUrl(p);
+  const title='SNB Leather Goods · '+p.name;
+  const text=lang==='ar'?('شاهد '+p.name+' على SNB Leather Goods'):('View '+p.name+' on SNB Leather Goods');
+  if(navigator.share){
+    try{await navigator.share({title,text,url});return}catch(e){if(e?.name==='AbortError')return}
+  }
+  try{await navigator.clipboard.writeText(url);toast(lang==='ar'?'تم نسخ رابط المنتج':'Product link copied')}
+  catch(e){window.prompt(lang==='ar'?'انسخ رابط المنتج':'Copy product link',url)}
+}
 function viewProduct(id){
   const p=products.find(x=>x.id===id);if(!p)return;
   const available=p.variants.filter(v=>v.stock>0);
@@ -132,7 +148,10 @@ function viewProduct(id){
       <div class="field"><label>${t('size')}</label><div style="display:flex;gap:7px;flex-wrap:wrap">${sizes.map(s=>{const ok=p.variants.some(v=>v.size===s&&v.stock>0);return `<button data-ps-size="${escapeHtml(s)}" class="btn small ${s===PS.selectedSize?'gold':''}" ${ok?'':'disabled'} onclick="psSelectSize('${p.id}',this.dataset.psSize)">${escapeHtml(s)}</button>`}).join('')}</div></div>
       <div class="field"><label>${t('color')}</label><div style="display:flex;gap:9px;flex-wrap:wrap">${colors.map(v=>{const ok=p.variants.some(x=>x.color===v.color&&x.stock>0);return `<button data-ps-color="${escapeHtml(v.color)}" title="${escapeHtml(psColorLabel(v))}" ${ok?'':'disabled'} onclick="psSelectColor('${p.id}',this.dataset.psColor)" style="width:40px;height:40px;border-radius:50%;border:3px solid #211a12;background:${escapeHtml(v.color)};outline:${v.color===PS.selectedColor?'2px solid #f2cf7b':'none'};opacity:${ok?'1':'.25'}"></button>`}).join('')}</div><small class="muted">${escapeHtml(psColorLabel(first)||'')}</small></div>
       <p>${t('stock')}: <b id="psVariantStock">${first?.stock||0}</b></p>
-      <button id="psAddBtn" data-variant="${first?.id||''}" class="btn gold" style="width:100%" ${first&&first.stock>0?'':'disabled'} onclick="addToCart('${p.id}',this.dataset.variant);closeOverlay()">${t('addCart')}</button>
+      <div style="display:grid;grid-template-columns:1fr auto;gap:8px">
+        <button id="psAddBtn" data-variant="${first?.id||''}" class="btn gold" style="width:100%" ${first&&first.stock>0?'':'disabled'} onclick="addToCart('${p.id}',this.dataset.variant);closeOverlay()">${t('addCart')}</button>
+        <button class="btn" type="button" onclick="psShareProduct('${p.id}')" title="${lang==='ar'?'مشاركة المنتج':'Share product'}">↗ ${lang==='ar'?'مشاركة':'Share'}</button>
+      </div>
     </div>
   </div>`);
 }
@@ -140,5 +159,5 @@ function viewProduct(id){
   if(!document.getElementById('psStyle')){
     const s=document.createElement('style');s.id='psStyle';s.textContent='.snb-tag{font-size:9px;font-weight:900;border-radius:999px;padding:6px 8px;background:rgba(8,7,5,.9);border:1px solid var(--line);color:#f3d58c;white-space:nowrap}.snb-store-tools .field input,.snb-store-tools .field select{min-height:42px}button:disabled{opacity:.35;cursor:not-allowed}';document.head.appendChild(s);
   }
-  setTimeout(()=>{psEnsureTools();loadProducts()},50);
+  setTimeout(async()=>{psEnsureTools();await loadProducts();const shared=new URLSearchParams(location.search).get('product');if(shared&&products.some(p=>p.id===shared))setTimeout(()=>viewProduct(shared),80)},50);
 })();

@@ -433,7 +433,7 @@ async function saveProduct(id,exists){
     }
     for(const v of variants){
       if(v.id){
-        const upd=await sb.from('product_variants').update({size:v.size,color:v.color,stock:v.stock,updated_at:new Date().toISOString()}).eq('id,v.id).eq('product_id',id);
+        const upd=await sb.from('product_variants').update({size:v.size,color:v.color,stock:v.stock,updated_at:new Date().toISOString()}).eq('id',v.id).eq('product_id',id);
         if(upd.error)throw upd.error;
       }else{
         const ins=await sb.from('product_variants').insert({product_id:id,size:v.size,color:v.color,stock:v.stock});

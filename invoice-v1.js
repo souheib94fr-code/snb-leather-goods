@@ -94,9 +94,9 @@
       </div>`);
   }
 
-  function allOrders(){
-    return [...(Array.isArray(window.orders)?window.orders:[]),...(Array.isArray(window.myOrders)?window.myOrders:[])];
-  }
+  function adminOrders(){return typeof orders!=='undefined'&&Array.isArray(orders)?orders:[]}
+  function customerOrders(){return typeof myOrders!=='undefined'&&Array.isArray(myOrders)?myOrders:[]}
+  function allOrders(){return [...adminOrders(),...customerOrders()]}
   function byId(id){return allOrders().find(o=>String(o.id)===String(id))||null}
 
   function printInvoice(o){
@@ -170,21 +170,21 @@
   window.snbPrintInvoice=id=>printInvoice(byId(id));
   window.snbDownloadInvoicePdf=id=>downloadPdf(byId(id));
   window.snbEmailInvoice=id=>emailInvoice(byId(id),false);
-  window.snbOpenInvoiceAccount=index=>openInvoice(window.myOrders?.[index]);
-  window.snbDownloadInvoiceAccount=index=>downloadPdf(window.myOrders?.[index]);
+  window.snbOpenInvoiceAccount=index=>openInvoice(customerOrders()[index]);
+  window.snbDownloadInvoiceAccount=index=>downloadPdf(customerOrders()[index]);
 
   const original=window.updateOrderStatus;
   if(typeof original==='function'){
     window.updateOrderStatus=async function(id,status){
-      const before=window.orders?.find(o=>String(o.id)===String(id));
+      const before=adminOrders().find(o=>String(o.id)===String(id));
       const previous=before?.status;
       await original(id,status);
-      const changed=window.orders?.find(o=>String(o.id)===String(id));
+      const changed=adminOrders().find(o=>String(o.id)===String(id));
       if(!changed||changed.status!==status)return;
       if(status==='confirmed'&&previous!=='confirmed'){
         try{
           await loadAdminData();
-          const fresh=window.orders?.find(o=>String(o.id)===String(id));
+          const fresh=adminOrders().find(o=>String(o.id)===String(id));
           if(fresh?.invoice_no){
             toast((lang==='ar'?'تم إصدار الفاتورة ':'Invoice issued ')+fresh.invoice_no);
             await emailInvoice(fresh,true);

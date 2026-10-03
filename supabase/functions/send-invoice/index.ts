@@ -111,12 +111,16 @@ Deno.serve(async (req) => {
     return json({ ok: false, error: "Invoice is not issued for this order yet" }, 409);
   }
 
-  const resendKey = Deno.env.get("RESEND_API_KEY") || "";
+  let resendKey = Deno.env.get("RESEND_API_KEY") || "";
+  if (!resendKey) {
+    const vaultResult = await admin.rpc("snb_get_server_secret", { p_name: "resend_api_key" });
+    if (!vaultResult.error && typeof vaultResult.data === "string") resendKey = vaultResult.data;
+  }
   if (!resendKey) {
     return json({
       ok: false,
       needs_setup: true,
-      error: "RESEND_API_KEY is not configured. Invoice PDF is available in the app."
+      error: "Email sending key is not configured. Invoice PDF is available in the app."
     });
   }
 

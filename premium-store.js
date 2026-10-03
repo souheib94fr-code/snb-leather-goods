@@ -31,7 +31,7 @@ function psEnsureTools(){
   const filters=document.getElementById('filters');
   if(!filters)return;
   filters.insertAdjacentHTML('beforebegin',`<div id="psStoreTools" class="snb-store-tools" style="display:flex;flex-wrap:wrap;gap:8px;align-items:end;margin:8px 0 12px">
-    <div class="field" style="margin:0;min-width:130px;flex:1"><label>${lang==='ar'?'الترتيب':'Sort'}</label><select id="psSort" onchange="PS.sort=this.value;renderProducts()"><option value="newest">${lang==='ar'?'الأحدث':'Newest'}</option><option value="price_low">${lang==='ar'?'السعر: الأقل':'Price: Low'}</option><option value="price_high">${lang==='ar'?'السعر: الأعلى':'Price: High'}</option><option value="stock">${lang==='ar'?'الأكثر توفراً':'Most stock'}</option></select></div>
+    <div class="field" style="margin:0;min-width:130px;flex:1"><label>${lang==='ar'?'الترتيب':'Sort'}</label><select id="psSort" onchange="PS.sort=this.value;renderProducts()"><option value="newest">${lang==='ar'?'الأحدث':'Newest'}</option><option value="price_low">${lang==='ar'?'السعر: الأقل':'Price: Low'}</option><option value="price_high">${lang==='ar'?'السعر: الأعلى':'Price: High'}</option><option value="bestseller">${lang==='ar'?'الأكثر مبيعاً':'Best seller'}</option><option value="stock">${lang==='ar'?'الأكثر توفراً':'Most stock'}</option></select></div>
     <div class="field" style="margin:0;min-width:110px;flex:1"><label>${lang==='ar'?'المقاس':'Size'}</label><input id="psSize" placeholder="${lang==='ar'?'مثال 42':'e.g. 42'}" oninput="PS.size=this.value.trim().toLowerCase();renderProducts()"></div>
     <div class="field" style="margin:0;min-width:120px;flex:1"><label>${lang==='ar'?'اللون':'Color'}</label><input id="psColor" placeholder="${lang==='ar'?'أسود / Black':'Black'}" oninput="PS.color=this.value.trim().toLowerCase();renderProducts()"></div>
     <div class="field" style="margin:0;min-width:95px;flex:.7"><label>${lang==='ar'?'من سعر':'Min'}</label><input id="psMin" type="number" min="0" oninput="PS.min=this.value;renderProducts()"></div>
@@ -67,7 +67,8 @@ function renderProducts(){
     if(PS.max!==''&&price>Number(PS.max))return false;
     return true;
   });
-  if(PS.sort==='price_low')list.sort((a,b)=>finalPrice(a)-finalPrice(b));
+  if(PS.sort==='bestseller')list.sort((a,b)=>Number(b.is_best_seller)-Number(a.is_best_seller)||new Date(b.created_at||0)-new Date(a.created_at||0));
+  else if(PS.sort==='price_low')list.sort((a,b)=>finalPrice(a)-finalPrice(b));
   else if(PS.sort==='price_high')list.sort((a,b)=>finalPrice(b)-finalPrice(a));
   else if(PS.sort==='stock')list.sort((a,b)=>b.stock-a.stock);
   else list.sort((a,b)=>new Date(b.created_at||0)-new Date(a.created_at||0));

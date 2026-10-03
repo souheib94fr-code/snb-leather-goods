@@ -38,7 +38,7 @@ function renderAdmin(tab='dashboard'){
   document.body.insertAdjacentHTML('beforeend',`<div id="adminApp" class="admin"><header class="topbar" style="position:sticky"><div class="logo"><img src="assets/SNB-App-Icon.png"><div class="logo-text"><b>SNB ADMIN</b><small>LEATHER GOODS</small></div></div><div class="spacer"></div><button class="btn" onclick="exitAdmin()">← ${t('shop')}</button></header><div class="admin-shell"><aside class="sidebar">
     <button class="btn ${tab==='dashboard'?'gold':''}" onclick="renderAdminReplace('dashboard')">▦ ${t('dashboard')}</button>
     <button class="btn ${tab==='products'?'gold':''}" onclick="renderAdminReplace('products')">◇ ${t('products')}</button>
-    <button class="btn ${tab==='orders'?'gold':''}" onclick="renderAdminReplace('orders')">🧾 ${t('orders')} ${newCount?`<span class="badge">${newCount}</span>`:''}</button>
+    <button class="btn ${tab==='orders'?'gold':''}" onclick="renderAdminReplace('orders')">🧾 ${t('orders')} ${newCount?`<span class="badge" style="background:#b52626;color:#fff">${newCount}</span>`:''}</button>
     <button class="btn ${tab==='coupons'?'gold':''}" onclick="renderAdminReplace('coupons')">％ ${lang==='ar'?'الكوبونات':'Coupons'}</button>
     <button class="btn ${tab==='shipping'?'gold':''}" onclick="renderAdminReplace('shipping')">🚚 ${lang==='ar'?'الشحن':'Shipping'}</button>
     <button class="btn ${tab==='inventory'?'gold':''}" onclick="renderAdminReplace('inventory')">▤ ${lang==='ar'?'المخزون':'Inventory'}</button>

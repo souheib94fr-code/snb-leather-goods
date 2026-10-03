@@ -5,7 +5,7 @@
 
   var PS={settings:null};
 
-  function isAr(){return window.lang==='ar'}
+  function isAr(){return typeof lang!=='undefined'&&lang==='ar'}
   function payText(ar,en){return isAr()?ar:en}
   function payEscape(v){return typeof escapeHtml==='function'?escapeHtml(String(v??'')):String(v??'').replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
   function formatIban(v){return String(v||'').replace(/\s+/g,'').replace(/(.{4})/g,'$1 ').trim()}

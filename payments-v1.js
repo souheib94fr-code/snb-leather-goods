@@ -54,7 +54,7 @@
       '<b>🏦 '+payText('بيانات التحويل البنكي','Bank transfer details')+'</b>'+
       '<div style="display:grid;gap:8px;margin-top:10px">'+
       '<div><small class="muted">'+payText('اسم البنك','Bank')+'</small><br><b>'+payEscape(s.bank_name)+'</b></div>'+
-      '<div><small class="muted">'+payText('اسم المستفيد','Beneficiary')+'</small><br><b>'+payEscape(s.account_name)+'</b></div>'+
+
       '<div><small class="muted">IBAN</small><br><b dir="ltr" style="word-break:break-all">'+payEscape(formatIban(s.iban))+'</b> <button class="btn small" type="button" onclick="snbCopyIban()">Copy</button></div>'+
       (s.swift_bic?'<div><small class="muted">SWIFT / BIC</small><br><b>'+payEscape(s.swift_bic)+'</b></div>':'')+
       (orderNo?'<div><small class="muted">'+payText('مرجع الطلب الذي تكتبه في التحويل','Order reference to include in transfer')+'</small><br><b>'+payEscape(orderNo)+'</b></div>':'')+

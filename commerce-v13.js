@@ -154,6 +154,15 @@
     v13ModalSelection={productId:id,size:v.size,color:v.color,variantId:v.id};
     v13RenderVariantOptions(p);
   };
+  
+
+  window.openCart=function(){
+    if(typeof repairCart==='function')repairCart();
+    var items=cart.map(function(i){var p=products.find(function(x){return x.id===i.id});var vid=i.variantId||i.variant_id;var v=p?(p.variants||[]).find(function(x){return x.id===vid}):null;return p&&v?{...i,p:p,v:v}:null}).filter(Boolean);
+    var subtotal=items.reduce(function(s,i){return s+i.p.price*i.qty},0),total=items.reduce(function(s,i){return s+finalPrice(i.p)*i.qty},0);
+    showDrawer('<div class="drawer-head"><h3>'+t('cart')+'</h3><button class="iconbtn close" onclick="closeOverlay()">✕</button></div>'+(items.length?items.map(function(i,idx){return '<div class="cart-item"><div class="cart-thumb">'+productVisual(i.p)+'</div><div><b>'+escapeHtml(i.p.name)+'</b><div class="muted" style="font-size:12px;margin-top:5px">'+t('size')+': '+escapeHtml(i.v.size)+' · '+t('color')+': '+escapeHtml(i.v.color_name||i.v.color)+'</div><div style="color:#f1cf7f;margin-top:5px">'+money(finalPrice(i.p))+'</div><div class="qty" style="margin-top:8px"><button onclick="cartQty('+idx+',-1)">−</button><b>'+i.qty+'</b><button onclick="cartQty('+idx+',1)">+</button></div></div><button class="iconbtn" onclick="removeCart('+idx+')">🗑</button></div>'}).join(''):'<div class="empty">'+t('emptyCart')+'</div>')+(items.length?'<div class="totals"><div class="totalrow"><span>'+t('subtotal')+'</span><span>'+money(subtotal)+'</span></div><div class="totalrow"><span>'+t('discount')+'</span><span>− '+money(subtotal-total)+'</span></div><div class="totalrow big"><span>'+t('total')+'</span><span>'+money(total)+'</span></div><button class="btn gold" style="width:100%;margin-top:10px" onclick="checkout()">'+t('checkout')+'</button></div>':'') );
+  };
+
   window.v13SetGalleryImage=function(url,index){
     var im=document.getElementById('v13MainImage');if(im)im.src=url;
     document.querySelectorAll('.gallery-thumb').forEach(function(x,i){x.classList.toggle('active',i===index)});
@@ -295,6 +304,10 @@
   function v13OrderCard(o,idx){
     return '<div style="border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:12px"><div style="display:flex;justify-content:space-between;gap:8px;align-items:center"><b>'+escapeHtml(o.order_no)+'</b><span class="status '+(o.status==='cancelled'?'warn':'ok')+'">'+escapeHtml(statusLabel(o.status))+'</span></div>'+orderProgressHtml(o)+'<div style="display:flex;justify-content:space-between;align-items:center"><b style="color:#f2cf7b">'+money(o.total)+'</b><div style="display:flex;gap:6px"><button class="btn small" onclick="v13ReorderOrder('+idx+')">'+(lang==='ar'?'إعادة الطلب':'Reorder')+'</button><button class="btn small" onclick="openOrderDetails('+idx+')">'+(lang==='ar'?'التفاصيل':'Details')+'</button></div></div></div>';
   }
+
+  window.accountOrdersHtml=function(){
+    return myOrders.length?myOrders.map(v13OrderCard).join(''):'<div class="empty">'+(lang==='ar'?'لا توجد طلبات بعد':'No orders yet')+'</div>';
+  };
 
   window.renderAccount=async function(){
     if(!currentUser)return renderAuth('login');

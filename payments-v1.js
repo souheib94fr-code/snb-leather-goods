@@ -9,7 +9,7 @@
   function payText(ar,en){return isAr()?ar:en}
   function payEscape(v){return typeof escapeHtml==='function'?escapeHtml(String(v??'')):String(v??'').replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
   function formatIban(v){return String(v||'').replace(/\s+/g,'').replace(/(.{4})/g,'$1 ').trim()}
-  function bankReady(s){return !!(s&&s.bank_transfer_enabled&&String(s.bank_name||'').trim()&&String(s.account_name||'').trim()&&String(s.iban||'').trim())}
+  function bankReady(s){return !!(s&&s.bank_transfer_enabled&&String(s.bank_name||'').trim()&&String(s.iban||'').trim())}
   function paymentMethodLabel(m){
     if(m==='bank_transfer')return payText('تحويل بنكي','Bank transfer');
     if(m==='cash_on_delivery')return payText('الدفع عند الاستلام','Cash on delivery');
@@ -189,7 +189,7 @@
     var el=document.getElementById('adminMain');if(!el)return;
     var s=PS.settings||{};
     el.innerHTML='<div class="section-head"><div><h3>💳 '+payText('إعدادات الدفع','Payment Settings')+'</h3><span>'+payText('تحويل بنكي + كاش عند الاستلام','Bank transfer + Cash on delivery')+'</span></div></div>'+
-      '<div class="notice">'+payText('اسم صاحب الحساب يبقى داخلياً ولا يظهر للعملاء. العميل يرى البنك وIBAN وSWIFT فقط. لا تحفظ أي رقم بطاقة أو CVV هنا.','The account holder name stays internal and is hidden from customers. Customers only see bank, IBAN and SWIFT. Never store card numbers or CVV here.')+'</div>'+
+      '<div class="notice">'+payText('اسم صاحب الحساب غير مطلوب ولا يتم عرضه للعملاء. العميل يرى البنك وIBAN وSWIFT فقط. لا تحفظ أي رقم بطاقة أو CVV هنا.','The account holder name is not required and is never shown to customers. Customers only see bank, IBAN and SWIFT. Never store card numbers or CVV here.')+'</div>'+
       '<div class="formgrid">'+
       '<div class="field"><label>'+payText('الدفع عند الاستلام','Cash on delivery')+'</label><select id="payCod"><option value="1" '+(s.cod_enabled?'selected':'')+'>'+payText('مفعّل','Enabled')+'</option><option value="0" '+(!s.cod_enabled?'selected':'')+'>'+payText('موقوف','Disabled')+'</option></select></div>'+
       '<div class="field"><label>'+payText('التحويل البنكي','Bank transfer')+'</label><select id="payBank"><option value="1" '+(s.bank_transfer_enabled?'selected':'')+'>'+payText('مفعّل','Enabled')+'</option><option value="0" '+(!s.bank_transfer_enabled?'selected':'')+'>'+payText('موقوف','Disabled')+'</option></select></div>'+
@@ -200,7 +200,7 @@
       '</div>'+
       '<div class="field"><label>'+payText('تعليمات إضافية للعميل','Extra customer instructions')+'</label><textarea id="payInstructions" rows="3">'+payEscape(s.instructions||'')+'</textarea></div>'+
       '<button class="btn gold" onclick="snbSavePaymentSettings()">'+payText('حفظ إعدادات الدفع','Save payment settings')+'</button>'+
-      (bankReady(s)?'<div class="notice" style="margin-top:12px;border-color:rgba(88,183,122,.45)">✓ '+payText('التحويل البنكي جاهز للظهور في Checkout.','Bank transfer is ready to appear at checkout.')+'</div>':'<div class="notice" style="margin-top:12px">⚠ '+payText('لن يظهر التحويل البنكي للعميل حتى تدخل اسم البنك + اسم المستفيد + IBAN وتفعّله.','Bank transfer stays hidden until bank name, beneficiary name and IBAN are entered and enabled.')+'</div>');
+      (bankReady(s)?'<div class="notice" style="margin-top:12px;border-color:rgba(88,183,122,.45)">✓ '+payText('التحويل البنكي جاهز للظهور في Checkout.','Bank transfer is ready to appear at checkout.')+'</div>':'<div class="notice" style="margin-top:12px">⚠ '+payText('لن يظهر التحويل البنكي للعميل حتى تدخل اسم البنك + IBAN وتفعّله.','Bank transfer stays hidden until bank name and IBAN are entered and enabled.')+'</div>');
   }
 
   window.snbSavePaymentSettings=async function(){
@@ -211,8 +211,8 @@
     var iban=(document.getElementById('payIban')?.value||'').replace(/\s+/g,'').toUpperCase();
     var swift=(document.getElementById('paySwift')?.value||'').replace(/\s+/g,'').toUpperCase();
     var instructions=document.getElementById('payInstructions')?.value.trim()||'';
-    if(bank&&(!bankName||!accountName||iban.length<15))return toast(payText('أكمل اسم البنك واسم المستفيد وIBAN صحيح قبل التفعيل.','Complete bank name, beneficiary and a valid IBAN before enabling.'));
-    var obj={cod_enabled:cod,bank_transfer_enabled:bank,bank_name:bankName||null,account_name:accountName||null,iban:iban||null,swift_bic:swift||null,instructions:instructions||null,updated_at:new Date().toISOString()};
+    if(bank&&(!bankName||iban.length<15))return toast(payText('أكمل اسم البنك وIBAN صحيح قبل التفعيل.','Complete bank name and a valid IBAN before enabling.'));
+    var obj={cod_enabled:cod,bank_transfer_enabled:bank,bank_name:bankName||null,account_name:null,iban:iban||null,swift_bic:swift||null,instructions:instructions||null,updated_at:new Date().toISOString()};
     var r=await sb.from('payment_settings').update(obj).eq('id',1);
     if(r.error)return toast(r.error.message||'Could not save payment settings');
     await loadSettings(true);

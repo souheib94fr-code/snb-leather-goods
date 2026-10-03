@@ -189,12 +189,12 @@
     var el=document.getElementById('adminMain');if(!el)return;
     var s=PS.settings||{};
     el.innerHTML='<div class="section-head"><div><h3>💳 '+payText('إعدادات الدفع','Payment Settings')+'</h3><span>'+payText('تحويل بنكي + كاش عند الاستلام','Bank transfer + Cash on delivery')+'</span></div></div>'+
-      '<div class="notice">'+payText('بيانات البنك ستظهر فقط للعملاء المسجلين عند اختيار التحويل البنكي. لا تحفظ أي رقم بطاقة أو CVV هنا.','Bank details are shown only to signed-in customers choosing bank transfer. Never store card numbers or CVV here.')+'</div>'+
+      '<div class="notice">'+payText('اسم صاحب الحساب يبقى داخلياً ولا يظهر للعملاء. العميل يرى البنك وIBAN وSWIFT فقط. لا تحفظ أي رقم بطاقة أو CVV هنا.','The account holder name stays internal and is hidden from customers. Customers only see bank, IBAN and SWIFT. Never store card numbers or CVV here.')+'</div>'+
       '<div class="formgrid">'+
       '<div class="field"><label>'+payText('الدفع عند الاستلام','Cash on delivery')+'</label><select id="payCod"><option value="1" '+(s.cod_enabled?'selected':'')+'>'+payText('مفعّل','Enabled')+'</option><option value="0" '+(!s.cod_enabled?'selected':'')+'>'+payText('موقوف','Disabled')+'</option></select></div>'+
       '<div class="field"><label>'+payText('التحويل البنكي','Bank transfer')+'</label><select id="payBank"><option value="1" '+(s.bank_transfer_enabled?'selected':'')+'>'+payText('مفعّل','Enabled')+'</option><option value="0" '+(!s.bank_transfer_enabled?'selected':'')+'>'+payText('موقوف','Disabled')+'</option></select></div>'+
       '<div class="field"><label>'+payText('اسم البنك','Bank name')+'</label><input id="payBankName" value="'+payEscape(s.bank_name||'')+'"></div>'+
-      '<div class="field"><label>'+payText('اسم المستفيد كما يظهر في البنك','Account / beneficiary name')+'</label><input id="payAccountName" value="'+payEscape(s.account_name||'')+'"></div>'+
+      '<div class="field"><label>'+payText('اسم صاحب الحساب — داخلي ولن يظهر للعملاء','Account holder name — internal, hidden from customers')+'</label><input id="payAccountName" value="'+payEscape(s.account_name||'')+'"></div>'+
       '<div class="field"><label>IBAN</label><input id="payIban" dir="ltr" value="'+payEscape(s.iban||'')+'" placeholder="AE..."></div>'+
       '<div class="field"><label>SWIFT / BIC</label><input id="paySwift" dir="ltr" value="'+payEscape(s.swift_bic||'')+'"></div>'+
       '</div>'+

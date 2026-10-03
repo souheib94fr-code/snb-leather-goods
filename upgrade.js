@@ -96,6 +96,8 @@ function renderProducts(){
 function addToCart(id,variantId=''){
   const p=products.find(x=>x.id===id);
   if(!p)return;
+  const available=productVariants(p).filter(v=>v.stock>0);
+  if(!variantId&&available.length>1){viewProduct(id);return}
   const v=getVariant(p,variantId)||firstAvailableVariant(p);
   if(!v||v.stock<1)return toast(lang==='ar'?'نفد المخزون':'Out of stock');
   const found=cart.find(i=>i.id===id&&i.variantId===v.id);

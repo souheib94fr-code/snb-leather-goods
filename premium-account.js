@@ -55,6 +55,13 @@ function paUseAddress(id){
   const ad=document.getElementById('address');if(ad)ad.value=a.address||'';
   paUpdateCheckoutTotals();
 }
+function paUseLastOrder(){
+  const o=myOrders?.[0];if(!o)return;
+  const em=document.getElementById('checkoutEmirate');if(em&&o.emirate)em.value=o.emirate;
+  const ci=document.getElementById('checkoutCity');if(ci)ci.value=o.city||'';
+  const ad=document.getElementById('address');if(ad)ad.value=o.address||'';
+  paUpdateCheckoutTotals();
+}
 async function checkout(){
   if(!currentUser){closeOverlay();localStorage.setItem('snb_pending_checkout','1');openAuth(true);return}
   if(!cart.length)return toast(t('emptyCart'));
@@ -67,6 +74,7 @@ async function checkout(){
   showModal(`<div class="modal-head"><h3>${t('checkout')}</h3><button class="iconbtn close" onclick="closeOverlay()">✕</button></div>
     <div class="notice">🔒 ${lang==='ar'?'طلبك مربوط بحسابك ويتم التحقق من المخزون عند التأكيد.':'Your order is linked to your account and stock is rechecked at confirmation.'}</div>
     ${PA.addresses.length?`<div class="field"><label>${lang==='ar'?'عنوان محفوظ':'Saved address'}</label><select onchange="if(this.value)paUseAddress(this.value)"><option value="">${lang==='ar'?'اختر عنواناً…':'Choose an address…'}</option>${PA.addresses.map(a=>`<option value="${a.id}" ${a.id===def.id?'selected':''}>${escapeHtml(a.label||'Address')} · ${escapeHtml(a.emirate)} · ${escapeHtml(a.city)}</option>`).join('')}</select></div>`:''}
+    ${myOrders?.length?`<button class="btn small" style="margin-bottom:10px" onclick="paUseLastOrder()">↻ ${lang==='ar'?'استخدم عنوان آخر طلب':'Use last order address'}</button>`:''}
     <div class="formgrid">
       <div class="field"><label>${t('name')}</label><input id="checkoutName" value="${escapeHtml(profile.name||'')}" autocomplete="name"></div>
       <div class="field"><label>${t('mobile')}</label><input id="checkoutMobile" value="${escapeHtml(profile.mobile||'')}" inputmode="tel" autocomplete="tel"></div>
@@ -207,6 +215,7 @@ async function renderAccount(){
   showModal(`<div class="modal-head"><h3>${accountLabel()}</h3><button class="iconbtn close" onclick="closeOverlay()">✕</button></div><div class="success" style="padding:8px 4px 14px"><div class="check">✓</div><h3 style="margin:8px 0">${escapeHtml(currentUser.name||signedInLabel())}</h3><div class="notice" style="margin:12px 0"><b>${escapeHtml(currentUser.email||'')}</b>${currentUser.mobile?`<br><small>${escapeHtml(currentUser.mobile)}</small>`:''}</div></div><div style="display:flex;gap:8px;margin-bottom:12px"><button class="btn" style="flex:1" onclick="paProfileEditor()">✎ ${lang==='ar'?'بياناتي':'Profile'}</button><button class="btn" style="flex:1" onclick="paEnableBrowserNotifications()">🔔 ${lang==='ar'?'إشعارات':'Alerts'}</button></div><h4 style="margin:8px 0 10px">${lang==='ar'?'طلباتي وتتبع الشحن':'My Orders & Tracking'}</h4><div id="accountOrders">${accountOrdersHtml()}</div><button class="btn ghost" style="width:100%;margin-top:12px" onclick="logoutCustomer()">${t('logout')}</button>`);
 }
 async function subscribeOrderUpdates(){
+  if(window.snbOrderChannel){try{await sb.removeChannel(window.snbOrderChannel)}catch(e){} window.snbOrderChannel=null}
   if(typeof orderStatusChannel!=='undefined'&&orderStatusChannel){try{await sb.removeChannel(orderStatusChannel)}catch(e){} orderStatusChannel=null}
   if(typeof orderChannel!=='undefined'&&orderChannel){try{await sb.removeChannel(orderChannel)}catch(e){} orderChannel=null}
   if(!currentUser)return;
@@ -216,6 +225,8 @@ async function subscribeOrderUpdates(){
     if('Notification' in window&&Notification.permission==='granted')new Notification('SNB Leather Goods',{body:msg,icon:'assets/SNB-App-Icon.png'});
   }).subscribe();
 }
+const paBaseLogout=logoutCustomer;
+logoutCustomer=async function(){if(window.snbOrderChannel){try{await sb.removeChannel(window.snbOrderChannel)}catch(e){} window.snbOrderChannel=null}return paBaseLogout()};
 (function paSplash(){
   if(sessionStorage.getItem('snbSplashShown'))return;sessionStorage.setItem('snbSplashShown','1');
   const d=document.createElement('div');d.id='paSplash';d.style='position:fixed;inset:0;z-index:9999;background:radial-gradient(circle at 50% 35%,#21170d,#070605 60%);display:grid;place-items:center;transition:opacity .45s';

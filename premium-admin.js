@@ -1,5 +1,5 @@
 // SNB Premium Admin Layer v1
-const AD={coupons:[],shipping:[],inventory:[],notifications:[]};
+const AD={coupons:[],shipping:[],inventory:[],notifications:[],currentTab:'dashboard',orderChannel:null};
 
 async function openAdminLogin(){
   if(!currentUser)return showModal(`<div class="modal-head"><h3>SNB Admin</h3><button class="iconbtn close" onclick="closeOverlay()">✕</button></div><div class="notice">${lang==='ar'?'سجّل الدخول بحساب الإدارة أولاً.':'Sign in with the admin account first.'}</div><button class="btn gold" style="width:100%" onclick="closeOverlay();openAuth()">${t('login')}</button>`);
@@ -32,6 +32,7 @@ function adLowStockRows(){
   return out.sort((a,b)=>a.v.stock-b.v.stock);
 }
 function renderAdmin(tab='dashboard'){
+  AD.currentTab=tab;
   document.getElementById('adminApp')?.remove();
   document.getElementById('customerApp').classList.add('hidden');document.getElementById('bottomnav').classList.add('hidden');
   const newCount=orders.filter(o=>o.status==='received').length;
@@ -47,6 +48,7 @@ function renderAdmin(tab='dashboard'){
   </aside><main class="admin-main" id="adminMain"></main></div></div>`);
   const revenue=orders.filter(o=>o.status!=='cancelled').reduce((s,o)=>s+Number(o.total||0),0);
   renderAdminTab(tab,revenue);
+  adSubscribeNewOrders();
 }
 function renderAdminReplace(tab){document.getElementById('adminApp')?.remove();renderAdmin(tab)}
 function renderAdminTab(tab,revenue){
@@ -60,6 +62,7 @@ function renderAdminTab(tab,revenue){
     el.innerHTML=`<div class="section-head"><div><h3>${t('dashboard')}</h3><span>Supabase Cloud · Live</span></div></div>
       <div class="stats"><div class="stat"><b>${newOrders.length}</b><small>${lang==='ar'?'طلبات جديدة':'New orders'}</small></div><div class="stat"><b>${money(todaySales)}</b><small>${lang==='ar'?'مبيعات اليوم':'Today sales'}</small></div><div class="stat"><b>${low.length}</b><small>${lang==='ar'?'خيارات مخزون منخفض':'Low-stock options'}</small></div><div class="stat"><b>${money(revenue)}</b><small>${lang==='ar'?'إجمالي قيمة الطلبات':'Order value'}</small></div></div>
       ${newOrders.length?`<div class="notice" style="margin-top:14px;border-color:rgba(215,168,78,.55)"><b>🔔 ${lang==='ar'?'طلبات تحتاج انتباهك':'Orders need attention'}</b><div style="margin-top:8px">${newOrders.slice(0,5).map(o=>`<button class="btn small" style="margin:3px" onclick="renderAdminReplace('orders')">${escapeHtml(o.order_no)} · ${money(o.total)}</button>`).join('')}</div></div>`:''}
+      <button class="btn" style="margin-top:12px" onclick="adEnableBrowserNotifications()">🔔 ${lang==='ar'?'فعّل تنبيه الطلبات الجديدة':'Enable new-order alerts'}</button>
       ${low.length?`<div class="tablewrap"><table class="table"><thead><tr><th>${lang==='ar'?'مخزون منخفض':'Low stock'}</th><th>${t('size')}</th><th>${t('color')}</th><th>${t('stock')}</th></tr></thead><tbody>${low.slice(0,12).map(x=>`<tr><td><b>${escapeHtml(x.p.name)}</b></td><td>${escapeHtml(x.v.size)}</td><td>${escapeHtml(x.v.color_name||x.v.color)}</td><td><span class="status warn">${x.v.stock}</span></td></tr>`).join('')}</tbody></table></div>`:''}`;
     return;
   }
@@ -93,6 +96,19 @@ function renderAdminTab(tab,revenue){
     const pending=AD.notifications.filter(n=>!n.sent_at);
     el.innerHTML=`<div class="section-head"><div><h3>${lang==='ar'?'إشعارات البريد':'Email Notifications'}</h3><span>${pending.length} ${lang==='ar'?'بانتظار الإرسال':'queued'}</span></div></div><div class="notice">${lang==='ar'?'أحداث البريد أصبحت تُسجّل تلقائياً عند الطلب وتغيير الحالة. الإرسال الخارجي يحتاج مفتاح إرسال محفوظاً بشكل آمن على السيرفر، لذلك لا يتم وضع أي مفتاح سري داخل التطبيق العام.':'Email events are queued automatically for new orders and status changes. External delivery requires a securely stored server-side sending key; no secret is exposed in the public app.'}</div><div class="tablewrap"><table class="table"><thead><tr><th>${t('date')}</th><th>${lang==='ar'?'النوع':'Type'}</th><th>${lang==='ar'?'المستلم':'Recipient'}</th><th>${t('status')}</th></tr></thead><tbody>${AD.notifications.length?AD.notifications.map(n=>`<tr><td>${new Date(n.created_at).toLocaleString()}</td><td>${escapeHtml(n.notification_type)}</td><td>${escapeHtml(n.recipient_email)}</td><td><span class="status ${n.sent_at?'ok':'warn'}">${n.sent_at?(lang==='ar'?'أُرسل':'Sent'):(lang==='ar'?'قائمة الانتظار':'Queued')}</span></td></tr>`).join(''):`<tr><td colspan="4" class="empty">—</td></tr>`}</tbody></table></div>`;
   }
+}
+async function adEnableBrowserNotifications(){
+  if(!('Notification' in window))return toast(lang==='ar'?'الإشعارات غير مدعومة':'Notifications are not supported');
+  const p=await Notification.requestPermission();toast(p==='granted'?(lang==='ar'?'تم تفعيل تنبيه الطلبات ✓':'New-order alerts enabled ✓'):(lang==='ar'?'لم يتم السماح بالإشعارات':'Notifications not allowed'));
+}
+async function adSubscribeNewOrders(){
+  if(AD.orderChannel){try{await sb.removeChannel(AD.orderChannel)}catch(e){} AD.orderChannel=null}
+  if(!currentUser||!isAdmin)return;
+  AD.orderChannel=sb.channel('snb-admin-new-orders').on('postgres_changes',{event:'INSERT',schema:'public',table:'orders'},async payload=>{
+    const msg=lang==='ar'?'🔴 وصل طلب جديد':'🔴 New order received';toast(msg);
+    if('Notification' in window&&Notification.permission==='granted')new Notification('SNB Leather Goods',{body:msg,icon:'assets/SNB-App-Icon.png'});
+    await loadAdminData();if(document.getElementById('adminApp'))renderAdminReplace(AD.currentTab||'dashboard');
+  }).subscribe();
 }
 async function updateOrderTracking(id){
   const carrier=document.getElementById('carrier-'+id)?.value.trim()||'';
@@ -174,6 +190,8 @@ async function saveProduct(id,exists){
     closeOverlay();await loadAdminData();renderAdminReplace('products');
   }catch(e){if(btn){btn.disabled=false;btn.textContent=t('save')}toast(e.message||'Could not save product')}
 }
+const adBaseExitAdmin=exitAdmin;
+exitAdmin=async function(){if(AD.orderChannel){try{await sb.removeChannel(AD.orderChannel)}catch(e){} AD.orderChannel=null}return adBaseExitAdmin()};
 async function adDeleteGalleryImage(imageId,productId){
   const {error}=await sb.from('product_images').delete().eq('id',imageId);if(error)return toast(error.message);
   await loadAdminData();editProduct(productId);

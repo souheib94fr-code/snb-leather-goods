@@ -1,7 +1,8 @@
-const CACHE_NAME = 'snb-leather-goods-v10';
+const CACHE_NAME = 'snb-leather-goods-v12';
 const APP_SHELL = [
   './',
   './index.html',
+  './upgrade.js',
   './manifest.webmanifest',
   './assets/SNB-App-Icon.png'
 ];

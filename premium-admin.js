@@ -2,8 +2,11 @@
 const AD={coupons:[],shipping:[],inventory:[],notifications:[],currentTab:'dashboard',orderChannel:null};
 
 async function openAdminLogin(){
-  if(!currentUser)return showModal(`<div class="modal-head"><h3>SNB Admin</h3><button class="iconbtn close" onclick="closeOverlay()">✕</button></div><div class="notice">${lang==='ar'?'سجّل الدخول بحساب الإدارة أولاً.':'Sign in with the admin account first.'}</div><button class="btn gold" style="width:100%" onclick="closeOverlay();openAuth()">${t('login')}</button>`);
-  if(!await checkAdmin())return showModal(`<div class="modal-head"><h3>SNB Admin</h3><button class="iconbtn close" onclick="closeOverlay()">✕</button></div><div class="notice" style="border-color:rgba(209,96,96,.4)">${lang==='ar'?'الحساب الحالي حساب عميل وليس حساب إدارة. سجّل خروج ثم ادخل بحساب الإدارة.':'This is a customer account, not an admin account. Sign out and use the admin account.'}</div><button class="btn gold" style="width:100%" onclick="logoutCustomer();setTimeout(()=>openAuth(),150)">${lang==='ar'?'تبديل الحساب':'Switch account'}</button>`);
+  const {data:userData}=await sb.auth.getUser();
+  const u=userData?.user;
+  if(!u)return showModal(`<div class="modal-head"><h3>SNB Admin</h3><button class="iconbtn close" onclick="closeOverlay()">✕</button></div><div class="notice">${lang==='ar'?'سجّل الدخول بحساب الإدارة أولاً.':'Sign in with the admin account first.'}</div><button class="btn gold" style="width:100%" onclick="closeOverlay();openAuth()">${t('login')}</button>`);
+  if(!currentUser||currentUser.id!==u.id)await setSignedInCustomer(u,false);
+  if(!await checkAdmin())return showModal(`<div class="modal-head"><h3>SNB Admin</h3><button class="iconbtn close" onclick="closeOverlay()">✕</button></div><div class="notice" style="border-color:rgba(209,96,96,.4)">${lang==='ar'?'الحساب المفتوح حالياً ليس حساب إدارة.':'The account currently signed in is not an admin account.'}<br><b>${escapeHtml(u.email||'')}</b></div><button class="btn gold" style="width:100%" onclick="logoutCustomer().then(()=>openAuth())">${lang==='ar'?'تبديل الحساب':'Switch account'}</button>`);
   closeOverlay();await loadAdminData();renderAdmin('dashboard');
 }
 async function loadAdminData(){

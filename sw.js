@@ -1,4 +1,4 @@
-const CACHE_NAME = 'snb-leather-goods-v20';
+const CACHE_NAME = 'snb-leather-goods-v21';
 const APP_SHELL = [
   './',
   './index.html',
@@ -6,7 +6,7 @@ const APP_SHELL = [
   './premium-admin.js',
   './premium-account.js',
   './premium-store.js',
-  './invoice-v1.js',
+  './invoice-v1.js',\n  './payments-v1.js',
   './manifest.webmanifest',
   './assets/SNB-App-Icon.png'
 ];

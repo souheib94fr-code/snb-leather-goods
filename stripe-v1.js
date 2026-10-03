@@ -7,6 +7,16 @@
   function txt(a,e){return ar()?a:e}
   function esc(v){return typeof escapeHtml==='function'?escapeHtml(String(v??'')):String(v??'')}
 
+  window.snbFormatDemoCard=function(input){
+    var digits=String(input?.value||'').replace(/\D/g,'').slice(0,16);
+    input.value=digits.replace(/(\d{4})(?=\d)/g,'$1 ');
+  };
+
+  window.snbFormatDemoExpiry=function(input){
+    var digits=String(input?.value||'').replace(/\D/g,'').slice(0,4);
+    input.value=digits.length>2?digits.slice(0,2)+'/'+digits.slice(2):digits;
+  };
+
   function addCardOption(){
     var sel=document.getElementById('paymentMethod');if(!sel)return;
     var opt=[...sel.options].find(o=>o.value==='card');
@@ -31,9 +41,9 @@
       '<b>💳 '+txt('الدفع بالبطاقة','Card payment')+'</b>'+
       '<p class="muted" style="margin:8px 0 0">'+txt('تجربة فقط — لا تدخل بيانات بطاقة حقيقية. هذه الحقول لا تُحفظ ولا تُرسل إلى السيرفر.','Demo only — do not enter real card details. These fields are not stored or sent to the server.')+'</p>'+
       '</div>'+
-      '<div class="field"><label>'+txt('رقم البطاقة','Card number')+'</label><input id="snbDemoCardNo" inputmode="numeric" autocomplete="off" maxlength="19" placeholder="1234 5678 9012 3456"></div>'+
+      '<div class="field"><label>'+txt('رقم البطاقة','Card number')+'</label><input id="snbDemoCardNo" inputmode="numeric" autocomplete="off" maxlength="19" placeholder="1234 5678 9012 3456" oninput="snbFormatDemoCard(this)"></div>'+
       '<div class="formgrid">'+
-      '<div class="field"><label>'+txt('تاريخ الانتهاء','Expiry')+'</label><input id="snbDemoExpiry" inputmode="numeric" autocomplete="off" maxlength="5" placeholder="MM/YY"></div>'+
+      '<div class="field"><label>'+txt('تاريخ الانتهاء','Expiry')+'</label><input id="snbDemoExpiry" inputmode="numeric" autocomplete="off" maxlength="5" placeholder="MM/YY" oninput="snbFormatDemoExpiry(this)"></div>'+
       '<div class="field"><label>CVV</label><input id="snbDemoCvv" inputmode="numeric" autocomplete="off" maxlength="3" placeholder="123"></div>'+
       '</div>';
   }

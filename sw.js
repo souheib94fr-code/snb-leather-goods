@@ -1,4 +1,4 @@
-const CACHE_NAME = 'snb-leather-goods-v9';
+const CACHE_NAME = 'snb-leather-goods-v10';
 const APP_SHELL = [
   './',
   './index.html',
